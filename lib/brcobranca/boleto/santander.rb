@@ -40,10 +40,10 @@ module Brcobranca
       # Número sequencial utilizado para identificar o boleto.
       # @return [String] até 7 caracteres numéricos.
       def nosso_numero=(valor)
-        # Caso o dígito verificador não seja considerado, o nosso número será mantido,
+        # Caso o dígito verificador não seja considerado, o nosso número terá 8 dígitos,
         # caso seja considerado, nosso número terá 7 dígitos.
         if self.valida_digito_verificador == false
-          @nosso_numero = valor.to_s if valor
+          @nosso_numero = valor.to_s.rjust(8, '0') if valor
         else
           @nosso_numero = valor.to_s.rjust(7, '0') if valor
         end
