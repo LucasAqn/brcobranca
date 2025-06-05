@@ -38,9 +38,23 @@ module Brcobranca
       end
 
       # Número sequencial utilizado para identificar o boleto.
-      # @return [String] 7 caracteres numéricos.
+      # @return [String] até 7 caracteres numéricos.
       def nosso_numero=(valor)
-        @nosso_numero = valor.to_s.rjust(7, '0') if valor
+        # Caso o dígito verificador não seja considerado, o nosso número será mantido,
+        # caso seja considerado, nosso número terá 7 dígitos.
+        if self.valida_digito_verificador == false
+          @nosso_numero = valor.to_s if valor
+        else
+          @nosso_numero = valor.to_s.rjust(7, '0') if valor
+        end
+
+      end
+
+      # Definição do uso do Dígito Verificador
+      #
+      # @return [Boolean]
+      def valida_digito_verificador=(valor)
+        @valida_digito_verificador = valor
       end
 
       # Dígito verificador do nosso número.
@@ -55,9 +69,13 @@ module Brcobranca
       # Nosso número para exibir no boleto.
       # @return [String]
       # @example
-      #  boleto.nosso_numero_boleto #=> "9000272-7"
+      #  boleto.nosso_numero_boleto #=> "9000272-7" || "9000272"
       def nosso_numero_boleto
-        "#{nosso_numero}-#{nosso_numero_dv}"
+        if self.valida_digito_verificador == false
+          "#{nosso_numero}"
+        else
+          "#{nosso_numero}-#{nosso_numero_dv}"
+        end
       end
 
       # Agência + codigo do cedente do cliente para exibir no boleto.
@@ -75,10 +93,15 @@ module Brcobranca
       # 9(01) | IOF somente para seguradoras<br/> Fixo 9
       # 9(03) | Carteira de cobrança<br/>
       #
-      # @return [String] 25 caracteres numéricos.
+      # @return [String] com até 25 caracteres numéricos.
       def codigo_barras_segunda_parte
-        "9#{convenio}00000#{nosso_numero}#{nosso_numero_dv}0#{carteira}"
+        if self.valida_digito_verificador == false
+          "9#{convenio}00000#{nosso_numero}0#{carteira}"
+        else
+          "9#{convenio}00000#{nosso_numero}#{nosso_numero_dv}0#{carteira}"
+        end
       end
+
     end
   end
 end
